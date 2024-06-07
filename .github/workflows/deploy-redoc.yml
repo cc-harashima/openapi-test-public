@@ -34,6 +34,9 @@ jobs:
           mkdir -p out/${BRANCH_NAME}
           redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
 
+      - name: List files in out directory for debugging
+        run: ls -alh out/${{ github.head_ref || github.ref_name }}
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
