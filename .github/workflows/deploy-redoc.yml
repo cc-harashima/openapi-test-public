@@ -81,6 +81,10 @@ jobs:
             echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
           fi
           set +x  # デバッグモードを無効にする
+      - name: Remove out directory
+        run: |
+          echo "Removing out directory"
+          rm -rf ./out
       - name: List files for debugging before deploy
         run: |
           echo "Contents of the directory before deployment:"
@@ -90,3 +94,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
