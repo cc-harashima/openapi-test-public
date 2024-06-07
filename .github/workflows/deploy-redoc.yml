@@ -55,16 +55,31 @@ jobs:
         run: |
           echo "Contents of the out directory after download:"
           ls -R ./out
+
+      - name: Additional debugging - List temp directories
+        run: |
+          echo "Contents of the out directory in the temp folder:"
+          ls -R /home/runner/work/_temp
+
       - name: Checkout the repository
         uses: actions/checkout@v2
         with:
           ref: gh-pages
+      - name: List files after checkout
+        run: |
+          echo "Contents of the working directory after checkout:"
+          ls -R
       - name: Setup Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - name: Download existing content
         run: git pull --rebase origin gh-pages
+
+      - name: List files after pull
+        run: |
+          echo "Contents of the working directory after pull:"
+          ls -R
       - name: Copy new content
         run: |
           set -x  # デバッグモードを有効にする（コマンドの実行内容を表示）
