@@ -1,15 +1,20 @@
 name: Deploy Redoc to GitHub Pages
 
-# トリガーの設定
 on:
   push:
     branches:
-      - main  # mainブランチにプッシュされたとき
+      - main
   pull_request:
-    types: [opened, synchronized, reopened]  # PRが作成、更新、再オープンされたとき
+    types: [opened, synchronized, reopened]
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -22,7 +27,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'  # または任意のLTSバージョン
+          node-version: '14.x'
 
       - name: Install Redoc-CLI
         run: npm install -g redoc-cli
@@ -31,14 +36,23 @@ jobs:
         run: |
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
+          # outディレクトリの指定されたブランチ名のサブフォルダにHTMLを生成
           mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html path/to/openapi.yaml
 
-      - name: List files in out directory for debugging
-        run: ls -alh out/${{ github.head_ref || github.ref_name }}
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
+          name: github-pages
+          path: out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
