@@ -74,7 +74,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - name: Download existing content
-        run: git pull --rebase origin gh-pages
+        run: |
+          git fetch origin
+          git checkout gh-pages
+          git pull --rebase origin gh-pages
 
       - name: List files after pull
         run: |
