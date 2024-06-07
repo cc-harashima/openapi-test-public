@@ -72,10 +72,11 @@ jobs:
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           echo "BRANCH_NAME: $BRANCH_NAME"
           if [ -d "./out/${BRANCH_NAME}" ]; then
-            echo "Copying contents of ./out/${BRANCH_NAME}/* to current directory"
-            cp -r ./out/${BRANCH_NAME}/* .
+            echo "Copying contents of ./out/${BRANCH_NAME} to ./${BRANCH_NAME}"
+            mkdir -p ./${BRANCH_NAME}
+            cp -r ./out/${BRANCH_NAME}/* ./${BRANCH_NAME}/
             echo "Contents of the directory after copying new content:"
-            ls -R
+            ls -R ./${BRANCH_NAME}
           else
             echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
           fi
