@@ -29,7 +29,7 @@ jobs:
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html path/to/openapi.yaml
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
       - name: List files for debugging
         run: |
           echo "Contents of the out directory:"
