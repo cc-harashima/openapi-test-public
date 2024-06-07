@@ -53,6 +53,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup Pages
+        uses: actions/configure-pages@v1
+      - name: Download existing content
+        run: git pull origin gh-pages
+      - name: Copy new content
+        run: |
+          # ブランチ名のディレクトリを新しい生成物で更新
+          cp -r out/${{ github.head_ref || github.ref_name }}/* .
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v1
+        with:
+          branch: gh-pages  # デプロイ先のブランチ
+          path: .  # セットアップしたディレクトリ
