@@ -55,8 +55,17 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          ref: gh-pages  # gh-pagesブランチをチェックアウト
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Setup Pages
         uses: actions/configure-pages@v1
+
       - name: Download existing content
         run: git pull --rebase origin gh-pages # --rebase は必要に応じて変更
 
@@ -64,6 +73,7 @@ jobs:
         run: |
           # ブランチ名のディレクトリを新しい生成物で更新
           cp -r out/${{ github.head_ref || github.ref_name }}/* .
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
