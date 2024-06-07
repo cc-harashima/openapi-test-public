@@ -58,7 +58,6 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
         with:
-          # gh-pagesブランチをクローンする
           ref: gh-pages
       - name: Setup Git
         run: |
@@ -72,6 +71,8 @@ jobs:
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           if [ -d "./out/${BRANCH_NAME}" ]; then
             cp -r ./out/${BRANCH_NAME}/* .
+            echo "Contents of the directory after copying new content:"
+            ls -R
           else
             echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
           fi
