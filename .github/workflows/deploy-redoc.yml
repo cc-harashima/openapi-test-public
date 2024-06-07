@@ -36,9 +36,10 @@ jobs:
         run: |
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-
+          # outディレクトリの指定されたブランチ名のサブフォルダにHTMLを生成
           mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html path/to/openapi.yaml
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
