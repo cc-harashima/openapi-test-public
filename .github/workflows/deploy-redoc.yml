@@ -36,47 +36,46 @@ jobs:
         run: |
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-          # outディレクトリの指定されたブランチ名のサブフォルダにHTMLを生成
-          mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
 
+          mkdir -p out/${BRANCH_NAME}
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html path/to/openapi.yaml
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
-          name: github-pages
-          path: out
+          name: github-pages  # アーティファクト名
+          path: out           # アーティファクトパス
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout the repository
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v2
         with:
-          ref: gh-pages  # gh-pagesブランチをチェックアウト
-
+          ref: gh-pages
       - name: Setup Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v1
-
-      - name: Download existing content
-        run: git pull --rebase origin gh-pages # --rebase は必要に応じて変更
-
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: github-pages
+          path: ./out
       - name: Copy new content
         run: |
-          # ブランチ名のディレクトリを新しい生成物で更新
-          cp -r out/${{ github.head_ref || github.ref_name }}/* .
-
+          # ブランチ名を取得
+          BRANCH_NAME=${{ github.head_ref || github.ref_name }}
+          # outディレクトリの指定されたブランチ名のサブフォルダをコピー
+          if [ -d "./out/${BRANCH_NAME}" ]; then
+            cp -r ./out/${BRANCH_NAME}/* .
+          else
+            echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
+          fi
       - name: Deploy to GitHub Pages
-        id: deployment
+
         uses: actions/deploy-pages@v1
         with:
-          branch: gh-pages  # デプロイ先のブランチ
-          path: .  # セットアップしたディレクトリ
+          branch: gh-pages
+          path: .  # デプロイ先ディレクトリ
