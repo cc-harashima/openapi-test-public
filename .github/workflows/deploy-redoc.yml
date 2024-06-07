@@ -67,15 +67,19 @@ jobs:
         run: git pull --rebase origin gh-pages
       - name: Copy new content
         run: |
+          set -x  # デバッグモードを有効にする（コマンドの実行内容を表示）
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
+          echo "BRANCH_NAME: $BRANCH_NAME"
           if [ -d "./out/${BRANCH_NAME}" ]; then
+            echo "Copying contents of ./out/${BRANCH_NAME}/* to current directory"
             cp -r ./out/${BRANCH_NAME}/* .
             echo "Contents of the directory after copying new content:"
             ls -R
           else
             echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
           fi
+          set +x  # デバッグモードを無効にする
       - name: List files for debugging before deploy
         run: |
           echo "Contents of the directory before deployment:"
