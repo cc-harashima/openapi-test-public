@@ -1,82 +1,86 @@
 name: Deploy Redoc to GitHub Pages
-
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-
 permissions:
   contents: write
   pages: write
   id-token: write
-
 concurrency:
   group: "pages"
   cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-
       - name: Install Redoc-CLI
         run: npm install -g redoc-cli
-
       - name: Generate Redoc HTML
         run: |
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-          # outディレクトリの指定されたブランチ名のサブフォルダにHTMLを生成
           mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
-
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html path/to/openapi.yaml
+      - name: List files for debugging
+        run: |
+          echo "Contents of the out directory:"
+          ls -R out
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: github-pages  # アーティファクト名
           path: out           # アーティファクトパス
-
   deploy:
-
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout gh-pages branch
-        uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-      - name: Setup Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
           name: github-pages
           path: ./out
+      - name: List downloaded files for debugging
+        run: |
+          echo "Contents of the out directory after download:"
+          ls -R ./out
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          # gh-pagesブランチをクローンする
+          ref: gh-pages
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Download existing content
+        run: git pull --rebase origin gh-pages
       - name: Copy new content
         run: |
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-          # outディレクトリの指定されたブランチ名のサブフォルダをコピー
           if [ -d "./out/${BRANCH_NAME}" ]; then
             cp -r ./out/${BRANCH_NAME}/* .
           else
             echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
           fi
+      - name: List files for debugging before deploy
+        run: |
+          echo "Contents of the directory before deployment:"
+          ls -R
+      - name: Configure Pages
+        uses: actions/configure-pages@v1
       - name: Deploy to GitHub Pages
-
+        id: deployment
         uses: actions/deploy-pages@v1
-        with:
-          branch: gh-pages
-          path: .  # デプロイ先ディレクトリ
