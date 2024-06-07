@@ -32,7 +32,7 @@ jobs:
           # ブランチ名を取得
           BRANCH_NAME=${{ github.head_ref || github.ref_name }}
           mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html openapi.yaml
+          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
