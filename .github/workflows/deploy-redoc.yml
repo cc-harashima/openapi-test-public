@@ -58,7 +58,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v1
       - name: Download existing content
-        run: git pull origin gh-pages
+        run: git pull --rebase origin gh-pages # --rebase は必要に応じて変更
+
       - name: Copy new content
         run: |
           # ブランチ名のディレクトリを新しい生成物で更新
