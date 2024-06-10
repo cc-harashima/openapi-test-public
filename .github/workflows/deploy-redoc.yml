@@ -1,96 +1,50 @@
-name: Deploy Redoc to GitHub Pages
+name: Deploy Docs to GitHub Pages
+
 on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+
 permissions:
   contents: write
   pages: write
   id-token: write
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+
       - name: Install Redoc-CLI
         run: npm install -g redoc-cli
+
       - name: Generate Redoc HTML
         run: |
-          # ブランチ名を取得
-          BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-          mkdir -p out/${BRANCH_NAME}
-          redoc-cli bundle -o out/${BRANCH_NAME}/index.html schema/openapi.yaml
-      - name: List files for debugging
-        run: |
-          echo "Contents of the out directory:"
-          ls -R out
+          mkdir openapi
+          redoc-cli bundle -o openapi/index.html schema/openapi.yaml
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages  # アーティファクト名
-          path: out           # アーティファクトパス
+        uses: actions/upload-pages-artifact@v3
+
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-        with:
-          ref: gh-pages
-      - name: List files after checkout
-        run: |
-          echo "Contents of the working directory after checkout:"
-          ls -R
-
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: github-pages
-          path: ./out
-      - name: List downloaded files for debugging
-        run: |
-          echo "Contents of the out directory after download:"
-          ls -R ./out
-
-      - name: Copy new content
-        run: |
-          set -x  # デバッグモードを有効にする（コマンドの実行内容を表示）
-          # ブランチ名を取得
-          BRANCH_NAME=${{ github.head_ref || github.ref_name }}
-          echo "BRANCH_NAME: $BRANCH_NAME"
-          if [ -d "./out/${BRANCH_NAME}" ]; then
-            echo "Copying contents of ./out/${BRANCH_NAME} to ./${BRANCH_NAME}"
-            mkdir -p ./${BRANCH_NAME}
-            cp -r ./out/${BRANCH_NAME}/* ./${BRANCH_NAME}/
-            echo "Contents of the directory after copying new content:"
-            ls -R ./${BRANCH_NAME}
-          else
-            echo "Directory ./out/${BRANCH_NAME} does not exist, skipping copy."
-          fi
-          set +x  # デバッグモードを無効にする
-      - name: Remove out directory
-        run: |
-          echo "Removing out directory"
-          rm -rf ./out
-      - name: List files for debugging before deploy
-        run: |
-          echo "Contents of the directory before deployment:"
-          ls -R
-      - name: Configure Pages
-        uses: actions/configure-pages@v1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
