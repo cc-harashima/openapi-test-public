@@ -32,11 +32,13 @@ jobs:
 
       - name: Generate Redoc HTML
         run: |
-          mkdir -p ${{ steps.pages.outputs.base_path }}/openapi
-          redoc-cli bundle -o ${{ steps.pages.outputs.base_path }}/openapi/index.html schema/openapi.yaml
+          mkdir -p output/openapi
+          redoc-cli bundle -o output/openapi/index.html schema/openapi.yaml
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
 
   deploy:
     environment:
