@@ -51,6 +51,9 @@ jobs:
           mkdir output/openapi
           npx -y @redocly/cli build-docs schema/openapi.yaml -o output/openapi/index.html
 
+      - name: check output
+        run: ls output
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
