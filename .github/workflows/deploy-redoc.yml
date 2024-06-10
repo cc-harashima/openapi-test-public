@@ -32,11 +32,8 @@ jobs:
 
       - name: Generate Redoc HTML
         run: |
-          pwd
-          ls -la
-          echo "${{ steps.pages.outputs.base_path }}"
-          mkdir openapi
-          redoc-cli bundle -o "${{ steps.pages.outputs.base_path }}"/openapi/index.html schema/openapi.yaml
+          mkdir -p ${{ steps.pages.outputs.base_path }}/openapi
+          redoc-cli bundle -o ${{ steps.pages.outputs.base_path }}/openapi/index.html schema/openapi.yaml
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
