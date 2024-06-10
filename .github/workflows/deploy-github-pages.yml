@@ -22,10 +22,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -36,6 +32,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.2'
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
       - name: Create output directory
         run: mkdir output
