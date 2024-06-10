@@ -34,6 +34,7 @@ jobs:
         run: |
           pwd
           ls -la
+          echo "${{ steps.pages.outputs.base_path }}"
           mkdir openapi
           redoc-cli bundle -o "${{ steps.pages.outputs.base_path }}"/openapi/index.html schema/openapi.yaml
 
