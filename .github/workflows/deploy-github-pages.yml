@@ -22,16 +22,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-
-      # - name: Install Node.js
-      #   uses: actions/setup-node@v4
+      # - name: Setup ruby
+      #   uses: ruby/setup-ruby@v1
       #   with:
-      #     node-version: '22.2'
+      #     ruby-version: '3.1'
+      #     bundler-cache: true
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.2'
 
       - name: Setup Pages
         id: pages
@@ -41,15 +41,15 @@ jobs:
         run: mkdir output
 
       - name: Build with Jekyll
-        # "${{ steps.pages.outputs.base_path }}"/docsにする？
-        run: bundle exec jekyll build --baseurl output/docs
-        env:
-          JEKYLL_ENV: production
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: docs
+          destination: output/docs
 
-      # - name: Generate Redoc HTML
-      #   run: |
-      #     mkdir output/openapi
-      #     npx -y @redocly/cli build-docs schema/openapi.yaml -o output/openapi/index.html
+      - name: Generate Redoc HTML
+        run: |
+          mkdir output/openapi
+          npx -y @redocly/cli build-docs schema/openapi.yaml -o output/openapi/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
